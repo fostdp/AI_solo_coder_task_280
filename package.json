@@ -1,0 +1,22 @@
+{
+  "name": "action-potential-simulator",
+  "version": "1.0.0",
+  "description": "动作电位传导模拟 - 神经生物学学习工具",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "neuroscience",
+    "action-potential",
+    "simulation",
+    "education"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 神经生理学虚拟实验室 - 测试运行器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            padding: 20px 30px;
+            background: #f8f9ff;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .summary-card .value {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .summary-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .summary-card.passed {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .summary-card.failed {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+        }
+        
+        .summary-card.rate {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .test-suites {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .test-suite {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .test-suite h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-item .icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+        
+        .test-item .name {
+            flex: 1;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .test-item .details {
+            font-size: 12px;
+            color: #666;
+            margin-left: 10px;
+        }
+        
+        .test-item.passed {
+            border-left: 3px solid #4caf50;
+        }
+        
+        .test-item.failed {
+            border-left: 3px solid #f44336;
+            background: #ffebee;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-badge.passed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .status-badge.failed {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        
+        .console-output .log {
+            color: #d4d4d4;
+        }
+        
+        .console-output .success {
+            color: #4ec9b0;
+        }
+        
+        .console-output .error {
+            color: #f14c4c;
+        }
+        
+        .console-output .info {
+            color: #569cd6;
+        }
+        
+        .not-run {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            font-size: 18px;
+        }
+        
+        .not-run .icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .test-suites {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 神经生理学虚拟实验室 - 测试运行器</h1>
+            <p>验证Hodgkin-Huxley模型、传导速度、药物效果等核心功能</p>
+        </header>
+        
+        <div class="controls">
+            <button id="runAllBtn" class="btn btn-primary" onclick="runAllTests()">
+                ▶️ 运行所有测试
+            </button>
+            <button id="runHhBtn" class="btn btn-secondary" onclick="runTest('Hodgkin-Huxley')">
+                🧪 HH模型测试
+            </button>
+            <button id="runConductionBtn" class="btn btn-secondary" onclick="runTest('Conduction')">
+                ⚡ 传导速度测试
+            </button>
+            <button id="runDrugBtn" class="btn btn-secondary" onclick="runTest('Drug')">
+                ☠️ 药物效果测试
+            </button>
+            <button id="clearBtn" class="btn btn-success" onclick="clearResults()">
+                🗑️ 清除结果
+            </button>
+        </div>
+        
+        <div class="content">
+            <div id="summary" class="summary" style="display: none;">
+                <div class="summary-card passed">
+                    <div class="value" id="passedCount">0</div>
+                    <div class="label">✅ 通过</div>
+                </div>
+                <div class="summary-card failed">
+                    <div class="value" id="failedCount">0</div>
+                    <div class="label">❌ 失败</div>
+                </div>
+                <div class="summary-card">
+                    <div class="value" id="totalCount">0</div>
+                    <div class="label">📊 总计</div>
+                </div>
+                <div class="summary-card rate">
+                    <div class="value" id="passRate">0%</div>
+                    <div class="label">📈 通过率</div>
+                </div>
+            </div>
+            
+            <div id="notRun" class="not-run">
+                <div class="icon">🧪</div>
+                <p>点击"运行所有测试"按钮开始验证模型</p>
+                <p style="margin-top: 10px; font-size: 14px;">测试将自动执行并显示详细结果</p>
+            </div>
+            
+            <div id="testResults" class="test-suites" style="display: none;"></div>
+            
+            <div id="consoleSection" style="display: none;">
+                <h3 style="margin: 20px 0 10px; color: #1e3c72;">📋 控制台输出</h3>
+                <div id="consoleOutput" class="console-output"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let testResults = null;
+        const consoleLogs = [];
+        
+        // 捕获console.log
+        const originalConsoleLog = console.log;
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            consoleLogs.push(args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' '));
+        };
+        
+        function loadTests() {
+            // 先加载主应用
+            const script1 = document.createElement('script');
+            script1.src = 'script.js';
+            document.head.appendChild(script1);
+            
+            // 然后加载测试
+            script1.onload = () => {
+                const script2 = document.createElement('script');
+                script2.src = 'tests.js';
+                document.head.appendChild(script2);
+            };
+        }
+        
+        function runAllTests() {
+            if (typeof NeuronLabTests === 'undefined') {
+                alert('测试脚本加载中，请稍候...');
+                loadTests();
+                return;
+            }
+            
+            consoleLogs.length = 0;
+            document.getElementById('notRun').style.display = 'none';
+            document.getElementById('summary').style.display = 'grid';
+            document.getElementById('testResults').style.display = 'grid';
+            document.getElementById('consoleSection').style.display = 'block';
+            
+            const tests = new NeuronLabTests();
+            testResults = tests.runAllTests();
+            
+            updateSummary();
+            displayResults();
+        }
+        
+        function runTest(testName) {
+            alert(`运行单独测试: ${testName}\n\n(此功能需要在tests.js中实现单独测试方法)`);
+        }
+        
+        function updateSummary() {
+            document.getElementById('passedCount').textContent = testResults.passed;
+            document.getElementById('failedCount').textContent = testResults.failed;
+            document.getElementById('totalCount').textContent = testResults.total;
+            document.getElementById('passRate').textContent = 
+                ((testResults.passed / testResults.total) * 100).toFixed(1) + '%';
+        }
+        
+        function displayResults() {
+            const container = document.getElementById('testResults');
+            container.innerHTML = '';
+            
+            // 按测试套件分组
+            const suites = [
+                {
+                    name: '🧪 Hodgkin-Huxley模型验证',
+                    tests: testResults.results.filter(r => 
+                        r.name.includes('静息') || r.name.includes('阈值') || 
+                        r.name.includes('峰值') || r.name.includes('去极化') || 
+                        r.name.includes('复极化') || r.name.includes('ease')
+                    )
+                },
+                {
+                    name: '⚡ 传导速度计算验证',
+                    tests: testResults.results.filter(r => 
+                        r.name.includes('传导') || r.name.includes('朗飞') || 
+                        r.name.includes('跳跃') || r.name.includes('无髓')
+                    )
+                },
+                {
+                    name: '☠️ 药物效果逻辑验证',
+                    tests: testResults.results.filter(r => 
+                        r.name.includes('TTX') || r.name.includes('河豚') || 
+                        r.name.includes('药物') || r.name.includes('剂量')
+                    )
+                },
+                {
+                    name: '🔬 离子通道状态机验证',
+                    tests: testResults.results.filter(r => 
+                        r.name.includes('通道') || r.name.includes('状态') || 
+                        r.name.includes('不应期') || r.name.includes('时序')
+                    )
+                },
+                {
+                    name: '🎬 动画时序验证',
+                    tests: testResults.results.filter(r => 
+                        r.name.includes('时程') || r.name.includes('帧') || 
+                        r.name.includes('离子流') || r.name.includes('重叠')
+                    )
+                },
+                {
+                    name: '🧬 突触传递模型验证',
+                    tests: testResults.results.filter(r => 
+                        r.name.includes('囊泡') || r.name.includes('突触') || 
+                        r.name.includes('递质')
+                    )
+                },
+                {
+                    name: '📊 膜片钳实验验证',
+                    tests: testResults.results.filter(r => 
+                        r.name.includes('封接') || r.name.includes('电流') ||
+                        r.name.includes('电阻')
+                    )
+                },
+                {
+                    name: '📚 学习进度系统验证',
+                    tests: testResults.results.filter(r => 
+                        r.name.includes('进度') || r.name.includes('步骤') ||
+                        r.name.includes('百分比')
+                    )
+                }
+            ];
+            
+            suites.forEach(suite => {
+                if (suite.tests.length === 0) return;
+                
+                const suiteDiv = document.createElement('div');
+                suiteDiv.className = 'test-suite';
+                
+                const passedCount = suite.tests.filter(t => t.status.includes('PASS')).length;
+                const h3 = document.createElement('h3');
+                h3.innerHTML = `${suite.name} 
+                    <span class="status-badge ${passedCount === suite.tests.length ? 'passed' : 'failed'}">
+                        ${passedCount}/${suite.tests.length}
+                    </span>`;
+                suiteDiv.appendChild(h3);
+                
+                suite.tests.forEach(test => {
+                    const testDiv = document.createElement('div');
+                    testDiv.className = `test-item ${test.status.includes('PASS') ? 'passed' : 'failed'}`;
+                    testDiv.innerHTML = `
+                        <span class="icon">${test.status.includes('PASS') ? '✅' : '❌'}</span>
+                        <span class="name">${test.name}</span>
+                        ${test.details ? `<span class="details">${test.details}</span>` : ''}
+                    `;
+                    suiteDiv.appendChild(testDiv);
+                });
+                
+                container.appendChild(suiteDiv);
+            });
+            
+            // 显示控制台输出
+            const consoleOutput = document.getElementById('consoleOutput');
+            consoleOutput.innerHTML = consoleLogs.map(log => {
+                let className = 'log';
+                if (log.includes('✅') || log.includes('通过') || log.includes('🎉')) className = 'success';
+                if (log.includes('❌') || log.includes('失败')) className = 'error';
+                if (log.includes('📋') || log.includes('🧪') || log.includes('🏆') || log.includes('📊')) className = 'info';
+                return `<div class="${className}">${escapeHtml(log)}</div>`;
+            }).join('');
+            
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function clearResults() {
+            testResults = null;
+            consoleLogs.length = 0;
+            document.getElementById('notRun').style.display = 'block';
+            document.getElementById('summary').style.display = 'none';
+            document.getElementById('testResults').style.display = 'none';
+            document.getElementById('consoleSection').style.display = 'none';
+        }
+        
+        // 页面加载完成后自动加载测试脚本
+        window.addEventListener('load', loadTests);
+    </script>
+</body>
+</html>

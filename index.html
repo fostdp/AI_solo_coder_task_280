@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动作电位传导模拟 - 高级版</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 神经生理学虚拟实验室</h1>
+            <div class="progress">
+                <span>学习进度: <span id="progressText">0%</span></span>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="basic">⚡ 基础动作电位</button>
+            <button class="tab-btn" data-tab="saltatory">🔗 跳跃传导</button>
+            <button class="tab-btn" data-tab="synapse">🧬 突触传递</button>
+            <button class="tab-btn" data-tab="drug">💊 药物模拟</button>
+            <button class="tab-btn" data-tab="patch">🔬 膜片钳实验</button>
+        </div>
+
+        <div class="main-content">
+            <div class="canvas-container">
+                <canvas id="neuronCanvas" width="900" height="550"></canvas>
+                <div class="stimulate-hint" id="stimulateHint">
+                    👆 点击轴突任意位置施加刺激
+                </div>
+            </div>
+
+            <div class="controls" id="basicControls">
+                <button id="stimulateBtn" class="btn btn-primary">⚡ 施加刺激</button>
+                <button id="resetBtn" class="btn btn-secondary">🔄 重置</button>
+                <button id="autoBtn" class="btn btn-tertiary">▶️ 自动演示</button>
+            </div>
+
+            <div class="controls" id="saltatoryControls" style="display:none">
+                <button id="saltatoryStimulateBtn" class="btn btn-primary">⚡ 刺激朗飞氏结</button>
+                <button id="compareBtn" class="btn btn-secondary">📊 速度对比</button>
+                <button id="resetSaltatoryBtn" class="btn btn-tertiary">🔄 重置</button>
+            </div>
+
+            <div class="controls" id="synapseControls" style="display:none">
+                <button id="synapseStimulateBtn" class="btn btn-primary">⚡ 刺激突触前神经元</button>
+                <button id="releaseNeurotransmitterBtn" class="btn btn-secondary">🧪 释放神经递质</button>
+                <button id="resetSynapseBtn" class="btn btn-tertiary">🔄 重置</button>
+            </div>
+
+            <div class="controls" id="drugControls" style="display:none">
+                <button id="applyTTXBtn" class="btn btn-danger">☠️ 添加河豚毒素(TTX)</button>
+                <button id="washoutBtn" class="btn btn-success">✨ 洗脱药物 - 恢复正常</button>
+                <button id="drugStimulateBtn" class="btn btn-primary">⚡ 施加刺激</button>
+                <button id="resetDrugBtn" class="btn btn-secondary">🔄 重置</button>
+            </div>
+
+            <div class="controls" id="patchControls" style="display:none">
+                <button id="sealBtn" class="btn btn-primary">🩹 形成封接</button>
+                <button id="breakthroughBtn" class="btn btn-secondary">🔓 破膜</button>
+                <button id="recordBtn" class="btn btn-success">📹 开始记录</button>
+                <button id="stopRecordBtn" class="btn btn-warning">⏹️ 停止记录</button>
+                <button id="resetPatchBtn" class="btn btn-tertiary">🔄 重置</button>
+            </div>
+
+            <div class="info-panel">
+                <div class="state-display">
+                    <h3>当前状态</h3>
+                    <div id="currentState" class="state resting">静息电位</div>
+                    <div class="potential-value">
+                        <span>膜电位:</span>
+                        <span id="potentialValue">-70 mV</span>
+                    </div>
+                    <div id="drugStatus" class="drug-status" style="display:none">
+                        <span>药物状态:</span>
+                        <span id="drugStatusText" class="channel-status closed">无药物</span>
+                    </div>
+                    <div id="patchStatus" class="patch-status" style="display:none">
+                        <span>膜片钳状态:</span>
+                        <span id="patchStatusText" class="channel-status closed">未封接</span>
+                    </div>
+                </div>
+
+                <div class="ion-channels">
+                    <h3>离子通道状态</h3>
+                    <div class="channel">
+                        <span class="channel-label">Na⁺ 通道:</span>
+                        <span id="naChannel" class="channel-status closed">关闭</span>
+                    </div>
+                    <div class="channel">
+                        <span class="channel-label">K⁺ 通道:</span>
+                        <span id="kChannel" class="channel-status closed">关闭</span>
+                    </div>
+                    <div class="channel" id="ttxBlocked" style="display:none">
+                        <span class="channel-label">TTX阻断:</span>
+                        <span class="channel-status open">阻断中</span>
+                    </div>
+                </div>
+
+                <div class="explanation">
+                    <h3>📚 原理说明</h3>
+                    <p id="explanationText">
+                        神经元在静息状态下，膜电位约为-70mV。细胞膜对K⁺通透性较高，对Na⁺通透性较低。
+                    </p>
+                </div>
+
+                <div class="steps">
+                    <h3>📋 学习步骤</h3>
+                    <div id="step1" class="step">1. 理解静息电位</div>
+                    <div id="step2" class="step">2. 观察去极化过程</div>
+                    <div id="step3" class="step">3. 观察复极化过程</div>
+                    <div id="step4" class="step">4. 观察电信号传导</div>
+                    <div id="step5" class="step">5. 学习跳跃传导机制</div>
+                    <div id="step6" class="step">6. 理解突触传递过程</div>
+                    <div id="step7" class="step">7. 认识药物作用机制</div>
+                    <div id="step8" class="step">8. 掌握膜片钳技术</div>
+                </div>
+            </div>
+
+            <div class="data-panel" id="dataPanel" style="display:none">
+                <h3>📈 实验数据记录</h3>
+                <canvas id="dataCanvas" width="300" height="200"></canvas>
+                <div id="dataStats" class="data-stats"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="tests.js"></script>
+</body>
+</html>
